@@ -2,810 +2,838 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conference Room</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Conference Room Display</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        :root {
-            /* Apple-inspired color system */
-            --system-background: #ffffff;
-            --system-background-secondary: #f2f2f7;
-            --system-background-tertiary: #ffffff;
-            --system-gray: #8e8e93;
-            --system-gray-2: #aeaeb2;
-            --system-gray-3: #c7c7cc;
-            --system-gray-4: #d1d1d6;
-            --system-gray-5: #e5e5ea;
-            --system-gray-6: #f2f2f7;
-            --system-blue: #007aff;
-            --system-green: #34c759;
-            --system-orange: #ff9500;
-            --system-red: #ff3b30;
-            --system-purple: #af52de;
-            --system-pink: #ff2d55;
-            --text-primary: #000000;
-            --text-secondary: #3c3c43;
-            --text-tertiary: #3c3c43;
-            --text-quaternary: #3c3c43;
-            
-            /* Spacing */
-            --spacing-xs: 4px;
-            --spacing-s: 8px;
-            --spacing-m: 16px;
-            --spacing-l: 24px;
-            --spacing-xl: 32px;
-            --spacing-xxl: 48px;
-            --spacing-xxxl: 64px;
-            
-            /* Typography scale */
-            --font-xs: 11px;
-            --font-s: 13px;
-            --font-m: 15px;
-            --font-l: 17px;
-            --font-xl: 20px;
-            --font-xxl: 28px;
-            --font-xxxl: 34px;
-            --font-display: 56px;
-            --font-display-large: 80px;
-            
-            /* Animation curves */
-            --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
-            --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
-            --spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --system-background: #000000;
-                --system-background-secondary: #1c1c1e;
-                --system-background-tertiary: #2c2c2e;
-                --text-primary: #ffffff;
-                --text-secondary: #ebebf5;
-                --text-tertiary: #ebebf599;
-                --text-quaternary: #ebebf54d;
-            }
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif;
-            background: var(--system-background);
-            color: var(--text-primary);
-            line-height: 1.4;
-            font-size: var(--font-l);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        /* Background blur layer */
-        .background-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                180deg,
-                var(--system-background) 0%,
-                var(--system-background-secondary) 100%
-            );
-            z-index: -1;
-        }
-        
-        /* Navigation bar */
-        .navigation-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 52px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            padding: 0 var(--spacing-l);
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .navigation-bar {
-                background: rgba(30, 30, 30, 0.85);
-                border-bottom-color: rgba(255, 255, 255, 0.1);
-            }
-        }
-        
-        .nav-content {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
-        .nav-title {
-            font-size: var(--font-l);
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-m);
+        :root {
+            --frost-white: #f0f5f9;
+            --ice-blue: #a8d5e5;
+            --deep-blue: #1a3a52;
+            --winter-teal: #2d6b7a;
+            --snow-glow: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --accent-gold: #8b9f5a;
+            --warm-amber: #c9a227;
         }
-        
-        .nav-logo {
-            height: 32px;
-            width: auto;
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
-        
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-s);
-        }
-        
-        .segmented-control {
-            display: flex;
-            background: var(--system-gray-6);
-            border-radius: 9px;
-            padding: 2px;
-            gap: 2px;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .segmented-control {
-                background: var(--system-background-tertiary);
-            }
-        }
-        
-        .segment-button {
-            padding: 6px 16px;
-            border: none;
-            background: transparent;
-            color: var(--text-primary);
-            font-size: var(--font-s);
-            font-weight: 500;
-            border-radius: 7px;
-            cursor: pointer;
-            transition: all 0.2s var(--ease-out-quint);
-            white-space: nowrap;
-        }
-        
-        .segment-button.active {
-            background: var(--system-background);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .segment-button.active {
-                background: var(--system-gray);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            }
-        }
-        
-        /* Main content */
-        .content-wrapper {
-            padding-top: 52px;
-            min-height: 100vh;
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--deep-blue);
+            color: var(--frost-white);
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
-        
-        .hero-section {
-            padding: var(--spacing-xxxl) var(--spacing-l) var(--spacing-xl);
-            text-align: center;
-            max-width: 1200px;
-            margin: 0 auto;
+
+        /* Background slideshow */
+        .bg-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            z-index: 0;
         }
-        
-        .current-time {
-            font-size: var(--font-display-large);
-            font-weight: 700;
-            letter-spacing: -0.04em;
-            margin-bottom: var(--spacing-s);
-            font-variant-numeric: tabular-nums;
-            background: linear-gradient(
-                180deg,
-                var(--text-primary) 0%,
-                var(--text-tertiary) 100%
-            );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .current-date {
-            font-size: var(--font-xl);
-            color: var(--text-secondary);
-            font-weight: 400;
-            opacity: 0.8;
-        }
-        
-        /* Meeting cards */
-        .meetings-container {
-            flex: 1;
-            padding: 0 var(--spacing-l) var(--spacing-xl);
-            max-width: 1200px;
-            margin: 0 auto;
+
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-        }
-        
-        .meeting-card {
-            background: var(--system-background-tertiary);
-            border-radius: 18px;
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-m);
-            border: 0.5px solid rgba(0, 0, 0, 0.04);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-            transform: translateY(0);
-            transition: all 0.3s var(--ease-out-quint);
+            height: 100%;
+            background-size: cover;
+            background-position: center;
             opacity: 0;
-            animation: slideUp 0.5s var(--ease-out-quint) forwards;
+            transition: opacity 2s ease-in-out;
         }
-        
-        @keyframes slideUp {
-            from {
+
+        .bg-image.active {
+            opacity: 1;
+        }
+
+        .bg-image:nth-child(1) {
+            background-image: url('winter1.jpeg');
+        }
+
+        .bg-image:nth-child(2) {
+            background-image: url('winter2.jpg');
+        }
+
+        /* Frosted overlay */
+        .frost-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(26, 58, 82, 0.75) 0%,
+                rgba(45, 107, 122, 0.65) 50%,
+                rgba(26, 58, 82, 0.8) 100%
+            );
+            backdrop-filter: blur(2px);
+            z-index: 1;
+        }
+
+        /* Snowfall container */
+        .snowfall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -20px;
+            color: white;
+            opacity: 0.8;
+            font-size: 1rem;
+            animation: fall linear infinite;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
                 opacity: 0;
-                transform: translateY(20px);
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            10% {
+                opacity: 0.8;
             }
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .meeting-card {
-                background: var(--system-background-tertiary);
-                border-color: rgba(255, 255, 255, 0.04);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
             }
         }
-        
-        .meeting-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
-        
-        .meeting-header {
+
+        /* Header */
+        .header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-l);
+            gap: 15px;
+            padding: 15px 25px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            width: 100%;
         }
-        
-        .meeting-status {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--spacing-s);
-            padding: 6px 12px;
-            background: var(--system-green);
-            color: white;
-            border-radius: 100px;
-            font-size: var(--font-xs);
-            font-weight: 600;
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .time {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--frost-white);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .date {
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
+            color: var(--ice-blue);
+            opacity: 0.9;
         }
-        
-        .meeting-status.upcoming {
-            background: var(--system-orange);
+
+        /* Room selector */
+        .room-selector {
+            display: flex;
+            gap: 10px;
+            background: var(--glass-bg);
+            padding: 8px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
         }
-        
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: white;
+
+        .room-tab {
+            padding: 12px 24px;
+            border-radius: 22px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+            color: var(--frost-white);
+            opacity: 0.7;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .room-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--ice-blue), var(--winter-teal));
+            opacity: 0;
+            transition: opacity 0.4s;
+            border-radius: 22px;
+        }
+
+        .room-tab.active {
+            opacity: 1;
+            box-shadow: 0 4px 20px rgba(168, 213, 229, 0.3);
+        }
+
+        .room-tab.active::before {
+            opacity: 1;
+        }
+
+        .room-tab span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Status display */
+        .status-display {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            animation: pulse 2s infinite;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(15px);
+            box-shadow: 
+                0 0 40px rgba(168, 213, 229, 0.15),
+                inset 0 0 30px rgba(255, 255, 255, 0.05);
         }
-        
-        @keyframes pulse {
-            0%, 100% {
+
+        .status-ring svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .status-ring circle {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .ring-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .ring-progress {
+            stroke: var(--ice-blue);
+            stroke-dasharray: 565;
+            stroke-dashoffset: 565;
+            transition: stroke-dashoffset 1s ease-out, stroke 0.5s;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        .status-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .status-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Status states */
+        .status-available .ring-progress {
+            stroke: #4ade80;
+            stroke-dashoffset: 0;
+        }
+        .status-available .status-text {
+            color: #4ade80;
+        }
+
+        .status-occupied .ring-progress {
+            stroke: #f87171;
+        }
+        .status-occupied .status-text {
+            color: #f87171;
+        }
+
+        .status-upcoming .ring-progress {
+            stroke: var(--warm-amber);
+            stroke-dashoffset: 282;
+        }
+        .status-upcoming .status-text {
+            color: var(--warm-amber);
+        }
+
+        /* Meeting card */
+        .meeting-card {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px 25px;
+            backdrop-filter: blur(20px);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .meeting-card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .meeting-time {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: var(--frost-white);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .meeting-time::before {
+            content: '❄';
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .meeting-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--ice-blue);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .meeting-attendees {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .attendee-chip {
+            background: rgba(168, 213, 229, 0.15);
+            border: 1px solid rgba(168, 213, 229, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--frost-white);
+        }
+
+        .meeting-countdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--ice-blue);
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .countdown-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--frost-white);
+        }
+
+        /* Touch ripple effect */
+        .touch-ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 213, 229, 0.4) 0%, transparent 70%);
+            pointer-events: none;
+            transform: scale(0);
+            animation: ripple 0.8s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* Ice crystal particles */
+        .ice-crystal {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--frost-white);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            pointer-events: none;
+            z-index: 101;
+            animation: crystal-float 1.5s ease-out forwards;
+        }
+
+        @keyframes crystal-float {
+            0% {
+                transform: scale(1) rotate(0deg);
                 opacity: 1;
-                transform: scale(1);
+            }
+            100% {
+                transform: scale(0) rotate(180deg) translateY(-80px);
+                opacity: 0;
+            }
+        }
+
+        /* Frost breath effect on status ring tap */
+        .frost-breath {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            animation: frost-expand 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes frost-expand {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Aurora effect (secret mode) */
+        .aurora-mode .frost-overlay {
+            background: linear-gradient(
+                135deg,
+                rgba(46, 16, 101, 0.7) 0%,
+                rgba(15, 118, 110, 0.6) 25%,
+                rgba(30, 64, 175, 0.6) 50%,
+                rgba(124, 58, 237, 0.6) 75%,
+                rgba(46, 16, 101, 0.7) 100%
+            );
+            animation: aurora-shift 8s ease-in-out infinite;
+        }
+
+        @keyframes aurora-shift {
+            0%, 100% {
+                filter: hue-rotate(0deg);
             }
             50% {
-                opacity: 0.5;
-                transform: scale(0.8);
+                filter: hue-rotate(30deg);
             }
         }
-        
-        .meeting-time-badge {
-            font-size: var(--font-s);
-            color: var(--text-tertiary);
-            font-weight: 500;
+
+        .aurora-mode .snowflake {
+            animation-duration: 4s !important;
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.8);
         }
-        
-        .meeting-welcome {
-            margin-bottom: var(--spacing-xl);
-        }
-        
-        .welcome-label {
-            font-size: var(--font-m);
-            color: var(--text-tertiary);
-            margin-bottom: var(--spacing-s);
-            font-weight: 400;
-        }
-        
-        .guest-names {
-            font-size: var(--font-display);
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-        }
-        
-        .meeting-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--spacing-l);
-            padding-top: var(--spacing-l);
-            border-top: 0.5px solid var(--system-gray-5);
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .meeting-details {
-                border-top-color: rgba(255, 255, 255, 0.1);
+
+        /* Pulse animation for available status */
+        @keyframes gentle-pulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 40px rgba(74, 222, 128, 0.15),
+                    inset 0 0 30px rgba(255, 255, 255, 0.05);
+            }
+            50% {
+                box-shadow: 
+                    0 0 60px rgba(74, 222, 128, 0.25),
+                    inset 0 0 30px rgba(255, 255, 255, 0.08);
             }
         }
-        
-        .detail-group {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-m);
-        }
-        
-        .detail-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--system-gray-6);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .detail-icon {
-                background: var(--system-background-secondary);
-            }
-        }
-        
-        .detail-text {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .detail-label {
-            font-size: var(--font-xs);
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 2px;
-        }
-        
-        .detail-value {
-            font-size: var(--font-m);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        /* Empty state */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: var(--spacing-xxxl) var(--spacing-l);
-            text-align: center;
-        }
-        
-        .empty-icon {
-            width: 120px;
-            height: 120px;
-            background: var(--system-gray-6);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            margin-bottom: var(--spacing-l);
-            opacity: 0;
-            animation: scaleIn 0.5s var(--spring) forwards;
-        }
-        
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .empty-icon {
-                background: var(--system-background-tertiary);
-            }
-        }
-        
-        .empty-title {
-            font-size: var(--font-xxl);
-            font-weight: 600;
-            margin-bottom: var(--spacing-s);
-            color: var(--text-primary);
-        }
-        
-        .empty-message {
-            font-size: var(--font-l);
-            color: var(--text-tertiary);
-            max-width: 400px;
-        }
-        
-        /* Loading state */
-        .loading-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: var(--spacing-xxxl);
-        }
-        
-        .loading-spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid var(--system-gray-5);
-            border-top-color: var(--system-blue);
-            border-radius: 50%;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        /* Footer */
-        .status-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 0.5px solid rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: var(--font-xs);
-            color: var(--text-tertiary);
-            gap: var(--spacing-l);
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .status-bar {
-                background: rgba(30, 30, 30, 0.85);
-                border-top-color: rgba(255, 255, 255, 0.1);
-            }
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
-        
-        .status-indicator {
-            width: 6px;
-            height: 6px;
-            background: var(--system-green);
-            border-radius: 50%;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .current-time {
-                font-size: var(--font-display);
-            }
-            
-            .guest-names {
-                font-size: var(--font-xxxl);
-            }
-            
-            .meeting-details {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Smooth transitions */
-        * {
-            transition: background-color 0.3s ease, 
-                        border-color 0.3s ease,
-                        color 0.3s ease;
+
+        .status-available .status-ring {
+            animation: gentle-pulse 3s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
-    <div class="background-layer"></div>
-    
-    <!-- Navigation Bar -->
-    <nav class="navigation-bar">
-        <div class="nav-content">
-            <div class="nav-title">
-                <img src="/logo.png" alt="Logo" class="nav-logo">
-                Centerline
-            </div>
-            <div class="nav-controls">
-                <div class="segmented-control">
-                    <button class="segment-button active" data-room="all">All Rooms</button>
-                    <button class="segment-button" data-room="Large">Studio</button>
-                    <button class="segment-button" data-room="Small">Winner's Circle</button>
-                </div>
+    <!-- Background slideshow -->
+    <div class="bg-slideshow">
+        <div class="bg-image active"></div>
+        <div class="bg-image"></div>
+    </div>
+
+    <!-- Frosted overlay -->
+    <div class="frost-overlay"></div>
+
+    <!-- Snowfall -->
+    <div class="snowfall" id="snowfall"></div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header with logo and time -->
+        <div class="header">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAhFBMVEX///82QkuapjoaGhfy8+aVoirY3Lve4OJKVFwzP0gsOkTHyswiMj18goeEhIMYGBUJCQABAAATExD19fR9fn1AQD3T1tf4+fKXozEbLTmfpKjP0M+anqKeqkGhrEjd4cKlsFPo6tatsbUFIS8mNUGQkI+YmJc4OTaPj4+BgoEcLTrX27ZHMxB3AAAC8UlEQVR4nO3dTXeaUBCA4aC1FLFBrAUtTdK0Sfr1//9fL41yrgvP4VLmDkPfd0c2mWehxw0zNzdERERERP9htfYA0tV3b7VHkK2+P6wetIeQzAEXizkT6y8OuFgcZks8AedL7ICO+Kg9jEhvFl2reX6hIrQfQvshtB9C+yG0H0L7IbQfQvshtB9C+yG0H0KLVan/dF34NepUI5Z+6ynMPkeda7TS47qn8N3xU9TJRio9Zr2FmUViusmS/sLEHrF6ypIQoTlitXZDBwmTjSniKzBMaIpYZX9HDhQaIp6BoUIzxCo5DRwsTJ5MENMOGC5MNhZ+wOWbZLhw/T7qrMNCiHD6IUQ4/RAinGLVxdOYwkZo4sCq8uJxTOH+h9DMQVWlnPC2fBaaOqCq3G0v/jCuUJ/YlEUhKVxqE5tyt5QVLssXodl71QKlharEZuuA4kJFYrNrgfLCQot4AsoLtYhN8QqMINQhdsAYQhXi/vzPowiXu+8fhCBX22/jCj8iHD2ECP0QIpQJIUI/hAhlQojQDyFCmRAi9EOIUCaECP0QIpQJIUI/hAhlQojQDyFCmRAi9EOIUCaECP0QIpQJIUI/hAhlQojQDyFCmRAi9EOIUCaECP0mKpz9O6T5Lu57wArLIzpilHe5Vda45NHex1db/5Fv4+xUUNxvkkfai6G4aSiPsttEdZVSXhbi+2mUd0XJ7xhSX4bVCO+JUge2RMldX7dCUwfVCO5r+yk0c2CXm/HGFOZCE/9bc9ybeBlChNMPIcLphxDh9EuzbLjQxpWSpiOG3ygxcp6sGXxnxgjQEdfDbgWZAXbEwHtPhoBnYtjNLlPAAXfXrAEdMfB2njmgI/4KuX9oEOiIATcsTQIdse8d0sQosP8tWRM/1Xp0XTiXENoPof0Q2g+h/RDaD6H9ENoPof0Q2g+h/RDaD6H96vtDJ3zUHkamjrh60B5FqvruMG+g+yi2xJl+CE854ryB7Rfqb+0RpKu1ByAiIiIiIhrSH3c9mTpQnFUOAAAAAElFTkSuQmCC" alt="Logo" class="logo">
+            <div class="header-text">
+                <div class="time" id="clock">--:--</div>
+                <div class="date" id="date">Loading...</div>
             </div>
         </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <div class="content-wrapper">
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <div class="current-time" id="hero-time">12:00 PM</div>
-            <div class="current-date" id="hero-date">Loading...</div>
+
+        <!-- Room selector -->
+        <div class="room-selector">
+            <button class="room-tab active" data-room="Large" onclick="selectRoom('Large')">
+                <span>Studio Room</span>
+            </button>
+            <button class="room-tab" data-room="Small" onclick="selectRoom('Small')">
+                <span>Winner's Circle</span>
+            </button>
         </div>
-        
-        <!-- Meetings -->
-        <div class="meetings-container" id="meetings-container">
-            <div class="loading-container">
-                <div class="loading-spinner"></div>
+
+        <!-- Status display -->
+        <div class="status-display" id="statusDisplay" onclick="handleStatusTap(event)">
+            <div class="status-ring">
+                <svg viewBox="0 0 200 200">
+                    <circle class="ring-bg" cx="100" cy="100" r="90"></circle>
+                    <circle class="ring-progress" cx="100" cy="100" r="90"></circle>
+                </svg>
+            </div>
+            <div class="status-content">
+                <div class="status-icon" id="statusIcon">❄</div>
+                <div class="status-text" id="statusText">Loading</div>
+            </div>
+        </div>
+
+        <!-- Meeting card -->
+        <div class="meeting-card" id="meetingCard">
+            <div class="meeting-time" id="meetingTime">--:-- – --:--</div>
+            <div class="meeting-title" id="meetingTitle"></div>
+            <div class="meeting-attendees" id="meetingAttendees"></div>
+            <div class="meeting-countdown">
+                <span id="countdownLabel">Starts in</span>
+                <span class="countdown-value" id="countdownValue">--</span>
+                <span>minutes</span>
             </div>
         </div>
     </div>
-    
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div class="status-item">
-            <span class="status-indicator"></span>
-            <span>Connected</span>
-        </div>
-        <div class="status-item" id="last-sync">
-            Last updated just now
-        </div>
-        <div class="status-item">
-            Auto-refresh enabled
-        </div>
-    </div>
-    
+
     <script>
-        // State management
-        let selectedRoom = 'all';
+        // State
+        let currentRoom = 'Large';
         let appointments = [];
-        
-        // Time formatting with Apple style
-        function updateHeroTime() {
+        let tapCount = 0;
+        let tapTimer = null;
+        let bgIndex = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createSnowfall();
+            updateClock();
+            setInterval(updateClock, 1000);
+            fetchAppointments();
+            setInterval(fetchAppointments, 30000);
+            startBackgroundSlideshow();
+            
+            // Global touch ripple
+            document.addEventListener('touchstart', createTouchRipple);
+            document.addEventListener('click', createTouchRipple);
+        });
+
+        // Create snowfall
+        function createSnowfall() {
+            const container = document.getElementById('snowfall');
+            const snowflakes = ['❄', '❅', '❆', '✦', '✧', '·'];
+            
+            for (let i = 0; i < 50; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                flake.style.animationDelay = Math.random() * 10 + 's';
+                flake.style.fontSize = (Math.random() * 0.8 + 0.4) + 'rem';
+                flake.style.opacity = Math.random() * 0.6 + 0.2;
+                container.appendChild(flake);
+            }
+        }
+
+        // Background slideshow
+        function startBackgroundSlideshow() {
+            const images = document.querySelectorAll('.bg-image');
+            setInterval(() => {
+                images[bgIndex].classList.remove('active');
+                bgIndex = (bgIndex + 1) % images.length;
+                images[bgIndex].classList.add('active');
+            }, 15000);
+        }
+
+        // Update clock
+        function updateClock() {
             const now = new Date();
-            const timeEl = document.getElementById('hero-time');
-            const dateEl = document.getElementById('hero-date');
-            
-            // Format time like Apple (12:00 PM)
-            let hours = now.getHours();
-            const minutes = now.getMinutes();
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            
-            timeEl.textContent = `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-            
-            // Format date
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const dateStr = now.toLocaleDateString('en-US', { 
+                weekday: 'long',
                 month: 'long', 
                 day: 'numeric' 
-            };
-            dateEl.textContent = now.toLocaleDateString('en-US', options);
+            });
+            
+            document.getElementById('clock').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr.toUpperCase();
         }
-        
+
         // Fetch appointments
         async function fetchAppointments() {
             try {
                 const response = await fetch('/api/appointments');
-                if (!response.ok) throw new Error('Failed to fetch');
-                
                 appointments = await response.json();
-                renderMeetings();
-                updateLastSync();
-                
+                updateDisplay();
             } catch (error) {
-                console.error('Error:', error);
-                showError();
+                console.error('Error fetching appointments:', error);
             }
         }
-        
-        // Render meetings
-        function renderMeetings() {
-            const container = document.getElementById('meetings-container');
+
+        // Update display
+        function updateDisplay() {
+            const roomAppointments = appointments.filter(a => a.room === currentRoom);
+            const statusDisplay = document.getElementById('statusDisplay');
+            const meetingCard = document.getElementById('meetingCard');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            const ringProgress = document.querySelector('.ring-progress');
             
-            // Filter by room
-            let filtered = appointments;
-            if (selectedRoom !== 'all') {
-                filtered = appointments.filter(apt => apt.room === selectedRoom);
-            }
+            // Remove all status classes
+            statusDisplay.classList.remove('status-available', 'status-occupied', 'status-upcoming');
             
-            // Empty state
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📅</div>
-                        <div class="empty-title">No Upcoming Meetings</div>
-                        <div class="empty-message">
-                            The ${selectedRoom === 'all' ? 'conference rooms are' : selectedRoom + ' Conference Room is'} 
-                            available for the next 30 minutes
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Sort by start time
-            filtered.sort((a, b) => new Date(a.start) - new Date(b.start));
-            
-            // Render cards with staggered animation
-            container.innerHTML = filtered.map((meeting, index) => {
-                const names = meeting.names.length > 0 
-                    ? meeting.names.join(', ') 
-                    : 'Guest';
+            if (roomAppointments.length === 0) {
+                // Available
+                statusDisplay.classList.add('status-available');
+                statusIcon.textContent = '✓';
+                statusText.textContent = 'Available';
+                ringProgress.style.strokeDashoffset = '0';
+                meetingCard.classList.remove('visible');
+            } else {
+                const meeting = roomAppointments[0];
                 
-                const statusClass = meeting.status === 'in-progress' ? '' : 'upcoming';
-                const statusText = meeting.status === 'in-progress' 
-                    ? 'Now' 
-                    : `In ${meeting.minutesUntilStart} minutes`;
-                
-                const startTime = new Date(meeting.start);
-                const endTime = new Date(meeting.end);
-                const duration = Math.round((endTime - startTime) / 60000);
-                
-                return `
-                    <div class="meeting-card" style="animation-delay: ${index * 0.1}s">
-                        <div class="meeting-header">
-                            <div class="meeting-status ${statusClass}">
-                                <span class="status-dot"></span>
-                                <span>${statusText}</span>
-                            </div>
-                            <div class="meeting-time-badge">
-                                ${meeting.formattedStartTime} – ${meeting.formattedEndTime}
-                            </div>
-                        </div>
-                        
-                        <div class="meeting-welcome">
-                            <div class="welcome-label">Welcome</div>
-                            <div class="guest-names">${names}</div>
-                        </div>
-                        
-                        <div class="meeting-details">
-                            <div class="detail-group">
-                                <div class="detail-icon">📍</div>
-                                <div class="detail-text">
-                                    <div class="detail-label">Location</div>
-                                    <div class="detail-value">${meeting.room}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="detail-group">
-                                <div class="detail-icon">⏱</div>
-                                <div class="detail-text">
-                                    <div class="detail-label">Duration</div>
-                                    <div class="detail-value">${duration} minutes</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // Show error state
-        function showError() {
-            const container = document.getElementById('meetings-container');
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">⚠️</div>
-                    <div class="empty-title">Connection Error</div>
-                    <div class="empty-message">
-                        Unable to load meetings. Please check your connection.
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Update last sync with relative time
-        function updateLastSync() {
-            const el = document.getElementById('last-sync');
-            el.textContent = 'Last updated just now';
-            
-            // Update to "1 minute ago", "2 minutes ago", etc.
-            let minutesAgo = 0;
-            const interval = setInterval(() => {
-                minutesAgo++;
-                if (minutesAgo === 1) {
-                    el.textContent = 'Last updated 1 minute ago';
-                } else if (minutesAgo < 30) {
-                    el.textContent = `Last updated ${minutesAgo} minutes ago`;
+                if (meeting.status === 'in-progress') {
+                    // Occupied
+                    statusDisplay.classList.add('status-occupied');
+                    statusIcon.textContent = '●';
+                    statusText.textContent = 'In Session';
+                    
+                    // Calculate progress
+                    const start = new Date(meeting.start);
+                    const end = new Date(meeting.end);
+                    const now = new Date();
+                    const total = end - start;
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / total, 1);
+                    const offset = 565 * (1 - progress);
+                    ringProgress.style.strokeDashoffset = offset;
+                    
+                    // Update countdown
+                    const remaining = Math.round((end - now) / 60000);
+                    document.getElementById('countdownLabel').textContent = 'Ends in';
+                    document.getElementById('countdownValue').textContent = remaining;
                 } else {
-                    clearInterval(interval);
+                    // Upcoming
+                    statusDisplay.classList.add('status-upcoming');
+                    statusIcon.textContent = '◐';
+                    statusText.textContent = 'Reserved';
+                    ringProgress.style.strokeDashoffset = '282';
+                    
+                    document.getElementById('countdownLabel').textContent = 'Starts in';
+                    document.getElementById('countdownValue').textContent = meeting.minutesUntilStart;
                 }
-            }, 60000);
-        }
-        
-        // Handle room selection with smooth transitions
-        document.querySelectorAll('.segment-button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                // Remove active from all
-                document.querySelectorAll('.segment-button').forEach(b => {
-                    b.classList.remove('active');
-                });
                 
-                // Add active to clicked
-                e.target.classList.add('active');
+                // Show meeting card
+                document.getElementById('meetingTime').textContent = 
+                    `${meeting.formattedStartTime} – ${meeting.formattedEndTime}`;
+                document.getElementById('meetingTitle').textContent = meeting.title || '';
                 
-                // Update state and re-render
-                selectedRoom = e.target.dataset.room;
-                renderMeetings();
-            });
-        });
-        
-        // Handle URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomParam = urlParams.get('room');
-        if (roomParam && ['Large', 'Small'].includes(roomParam)) {
-            selectedRoom = roomParam;
-            document.querySelectorAll('.segment-button').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.room === roomParam);
-            });
+                const attendeesContainer = document.getElementById('meetingAttendees');
+                attendeesContainer.innerHTML = '';
+                if (meeting.names && meeting.names.length > 0) {
+                    meeting.names.forEach(name => {
+                        const chip = document.createElement('span');
+                        chip.className = 'attendee-chip';
+                        chip.textContent = name;
+                        attendeesContainer.appendChild(chip);
+                    });
+                }
+                
+                meetingCard.classList.add('visible');
+            }
         }
-        
-        // Initialize
-        updateHeroTime();
-        fetchAppointments();
-        
-        // Update intervals
-        setInterval(updateHeroTime, 1000); // Update time every second
-        setInterval(fetchAppointments, 30000); // Fetch data every 30 seconds
-        
-        // Handle page visibility for smart refresh
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                fetchAppointments();
-                updateHeroTime();
+
+        // Room selection
+        function selectRoom(room) {
+            currentRoom = room;
+            
+            // Update tabs
+            document.querySelectorAll('.room-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.room === room);
+            });
+            
+            // Create ice crystal burst
+            const activeTab = document.querySelector('.room-tab.active');
+            const rect = activeTab.getBoundingClientRect();
+            createIceCrystals(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            
+            updateDisplay();
+        }
+
+        // Touch ripple effect
+        function createTouchRipple(e) {
+            const ripple = document.createElement('div');
+            ripple.className = 'touch-ripple';
+            
+            const x = e.clientX || (e.touches && e.touches[0].clientX);
+            const y = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            ripple.style.left = x - 50 + 'px';
+            ripple.style.top = y - 50 + 'px';
+            ripple.style.width = '100px';
+            ripple.style.height = '100px';
+            
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 800);
+        }
+
+        // Ice crystal particles
+        function createIceCrystals(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const crystal = document.createElement('div');
+                crystal.className = 'ice-crystal';
+                
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = 40 + Math.random() * 30;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                crystal.style.left = x + 'px';
+                crystal.style.top = y + 'px';
+                crystal.style.setProperty('--tx', tx + 'px');
+                crystal.style.setProperty('--ty', ty + 'px');
+                crystal.style.animation = `crystal-float 1s ease-out forwards`;
+                crystal.style.transform = `translate(${tx}px, ${ty}px)`;
+                
+                document.body.appendChild(crystal);
+                setTimeout(() => crystal.remove(), 1000);
             }
-        });
-        
-        // Add subtle parallax effect on scroll
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const heroSection = document.querySelector('.hero-section');
-            if (heroSection) {
-                heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
-                heroSection.style.opacity = 1 - (scrolled * 0.002);
+        }
+
+        // Status ring tap handler
+        function handleStatusTap(e) {
+            e.stopPropagation();
+            
+            // Frost breath effect
+            const display = document.getElementById('statusDisplay');
+            const breath = document.createElement('div');
+            breath.className = 'frost-breath';
+            display.querySelector('.status-ring').appendChild(breath);
+            setTimeout(() => breath.remove(), 600);
+            
+            // Secret aurora mode
+            tapCount++;
+            clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => tapCount = 0, 2000);
+            
+            if (tapCount >= 5) {
+                document.body.classList.toggle('aurora-mode');
+                tapCount = 0;
+                
+                // Burst of crystals
+                const rect = display.getBoundingClientRect();
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        createIceCrystals(
+                            rect.left + rect.width / 2 + (Math.random() - 0.5) * 50,
+                            rect.top + rect.height / 2 + (Math.random() - 0.5) * 50
+                        );
+                    }, i * 50);
+                }
             }
-        });
+        }
     </script>
 </body>
 </html>
