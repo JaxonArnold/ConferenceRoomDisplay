@@ -87,8 +87,8 @@ This will attempt to refresh your token and verify it works with the API.
    - Access: `http://localhost:3000`
 
 2. **Single Room View**: Shows meetings for a specific room
-   - Large Conference Room: `http://localhost:3000?room=Large`
-   - Small Conference Room: `http://localhost:3000?room=Small`
+   - Large Conference Room: `http://localhost:8080?room=Large`
+   - Small Conference Room: `http://localhost:8080?room=Small`
 
 ### Display Setup
 
@@ -97,8 +97,8 @@ For dedicated conference room displays:
 1. **Set up a display device** (tablet, TV with computer, etc.) outside each conference room
 2. **Open the web app** in full-screen mode (press F11 in most browsers)
 3. **Use room-specific URLs** for each display:
-   - Large Room Display: `http://your-server:3000?room=Large`
-   - Small Room Display: `http://your-server:3000?room=Small`
+   - Large Room Display: `http://your-server:8080?room=Large`
+   - Small Room Display: `http://your-server:8080?room=Small`
 
 ## How It Works
 
