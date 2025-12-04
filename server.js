@@ -127,6 +127,8 @@ const tokenManager = new TokenManager();
 
 // Serve static files
 app.use(express.static('public'));
+// Also serve project root files under /assets so images placed in repo root are reachable
+app.use('/assets', express.static(path.join(__dirname)));
 
 // Serve index.html from project root at '/'
 app.get('/', (req, res) => {

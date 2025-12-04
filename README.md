@@ -28,7 +28,7 @@
    ```
    
    **Getting Your Tokens:**
-   1. Log into your Daylite API dashboard
+   1. Log into your Daylite API dashboard (https://developer.daylite.app/reference/personal-token)
    2. Create a personal token
    3. Copy both the access token and refresh token
    4. The app will automatically refresh the access token before it expires
@@ -37,13 +37,9 @@
    ```bash
    npm start
    ```
-   Or for development with auto-restart:
-   ```bash
-   npm run dev
-   ```
 
 4. **Access the Display**
-   Open your browser to `http://localhost:3000`
+   Open your browser to `http://localhost:8080`
 
 ## Token Management
 
@@ -79,16 +75,6 @@ This will attempt to refresh your token and verify it works with the API.
 5. New tokens are saved for future use
 6. Both access and refresh tokens are updated after each refresh
 
-## Usage
-
-### Display Modes
-
-1. **All Rooms View**: Shows meetings for all conference rooms
-   - Access: `http://localhost:3000`
-
-2. **Single Room View**: Shows meetings for a specific room
-   - Large Conference Room: `http://localhost:8080?room=Large`
-   - Small Conference Room: `http://localhost:8080?room=Small`
 
 ### Display Setup
 
