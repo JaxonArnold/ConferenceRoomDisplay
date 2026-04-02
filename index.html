@@ -1,839 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Conference Room Display</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conference Room Display</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        :root {
-            --frost-white: #f0f5f9;
-            --ice-blue: #a8d5e5;
-            --deep-blue: #1a3a52;
-            --winter-teal: #2d6b7a;
-            --snow-glow: rgba(255, 255, 255, 0.9);
-            --glass-bg: rgba(255, 255, 255, 0.12);
-            --glass-border: rgba(255, 255, 255, 0.25);
-            --accent-gold: #8b9f5a;
-            --warm-amber: #c9a227;
-        }
+    :root {
+      --bg-primary: #0c0f14;
+      --text-primary: #f0ede8;
+      --text-secondary: rgba(240, 237, 232, 0.5);
+      --divider: rgba(255, 255, 255, 0.07);
+      --accent: #c9a96e;
+      --accent-glow: rgba(201, 169, 110, 0.12);
+    }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
+    body.studio {
+      --accent: #c9a96e;
+      --accent-glow: rgba(201, 169, 110, 0.12);
+      --ambient-1: rgba(201, 169, 110, 0.04);
+      --ambient-2: rgba(180, 140, 80, 0.025);
+    }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--deep-blue);
-            color: var(--frost-white);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
+    body.winners {
+      --accent: #7eaaa2;
+      --accent-glow: rgba(126, 170, 162, 0.12);
+      --ambient-1: rgba(126, 170, 162, 0.04);
+      --ambient-2: rgba(100, 150, 140, 0.025);
+    }
 
-        /* Background slideshow */
-        .bg-slideshow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
 
-        .bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+    }
 
-        .bg-image.active {
-            opacity: 1;
-        }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 90% 70% at 30% 90%, var(--ambient-1), transparent),
+        radial-gradient(ellipse 70% 60% at 75% 15%, var(--ambient-2), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .bg-image:nth-child(1) {
-            background-image: url('/assets/winter1.jpeg');
-        }
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 3vh 4vw;
+    }
 
-        .bg-image:nth-child(2) {
-            background-image: url('/assets/winter2.jpg');
-        }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 2.5vh;
+      border-bottom: 1px solid var(--divider);
+      flex-shrink: 0;
+    }
 
-        /* Frosted overlay */
-        .frost-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                135deg,
-                rgba(26, 58, 82, 0.75) 0%,
-                rgba(45, 107, 122, 0.65) 50%,
-                rgba(26, 58, 82, 0.8) 100%
-            );
-            backdrop-filter: blur(2px);
-            z-index: 1;
-        }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
 
-        /* Snowfall container */
-        .snowfall {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-            overflow: hidden;
-        }
+    .logo-area img {
+      height: 5vh;
+      min-height: 36px;
+      max-height: 64px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(1.05);
+    }
 
-        .snowflake {
-            position: absolute;
-            top: -20px;
-            color: white;
-            opacity: 0.8;
-            font-size: 1rem;
-            animation: fall linear infinite;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
+    .room-name {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.7rem, 1.1vw, 0.95rem);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+    }
 
-        @keyframes fall {
-            0% {
-                transform: translateY(-20px) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.8;
-            }
-            90% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.3rem;
+    }
 
-        /* Main container */
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+    .clock {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
 
-        /* Header */
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 25px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
-            width: 100%;
-        }
+    .date-display {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(0.65rem, 1vw, 0.85rem);
+      color: var(--text-secondary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
 
-        .logo {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-        }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 3.5vh;
+      padding: 2vh 2vw;
+    }
 
-        .header-text {
-            flex: 1;
-        }
+    .idle-state {
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
 
-        .time {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2rem;
-            font-weight: 300;
-            letter-spacing: 2px;
-            color: var(--frost-white);
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
+    .idle-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 4vw, 3.5rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-secondary);
+      letter-spacing: 0.01em;
+    }
 
-        .date {
-            font-size: 0.75rem;
-            font-weight: 400;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--ice-blue);
-            opacity: 0.9;
-        }
+    .meeting-display {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3vh;
+      animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
-        /* Room selector */
-        .room-selector {
-            display: flex;
-            gap: 10px;
-            background: var(--glass-bg);
-            padding: 8px;
-            border-radius: 30px;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-        }
+    .welcome-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.6rem);
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
 
-        .room-tab {
-            padding: 12px 24px;
-            border-radius: 22px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: transparent;
-            color: var(--frost-white);
-            opacity: 0.7;
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
+    .client-names {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 9vw, 9rem);
+      font-weight: 600;
+      line-height: 1.05;
+      color: var(--text-primary);
+      letter-spacing: -0.015em;
+      max-width: 90vw;
+    }
 
-        .room-tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--ice-blue), var(--winter-teal));
-            opacity: 0;
-            transition: opacity 0.4s;
-            border-radius: 22px;
-        }
+    .accent-rule {
+      width: clamp(40px, 5vw, 80px);
+      height: 2px;
+      background: var(--accent);
+      border: none;
+      border-radius: 1px;
+      opacity: 0.6;
+    }
 
-        .room-tab.active {
-            opacity: 1;
-            box-shadow: 0 4px 20px rgba(168, 213, 229, 0.3);
-        }
+    .meeting-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1vh;
+    }
 
-        .room-tab.active::before {
-            opacity: 1;
-        }
+    .meeting-time {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.9rem, 1.5vw, 1.3rem);
+      color: var(--text-secondary);
+    }
 
-        .room-tab span {
-            position: relative;
-            z-index: 1;
-        }
+    .time-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
 
-        /* Status display */
-        .status-display {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .time-dot.live {
+      animation: pulse 2s ease-in-out infinite;
+    }
 
-        .status-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(15px);
-            box-shadow: 
-                0 0 40px rgba(168, 213, 229, 0.15),
-                inset 0 0 30px rgba(255, 255, 255, 0.05);
-        }
+    .meta-divider {
+      width: 1px;
+      height: 1.2em;
+      background: var(--divider);
+    }
 
-        .status-ring svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
+    .status-badge {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.6rem, 0.9vw, 0.8rem);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 0.45em 1.3em;
+      border-radius: 100px;
+      color: var(--accent);
+      border: 1px solid var(--accent-glow);
+      background: var(--accent-glow);
+    }
 
-        .status-ring circle {
-            fill: none;
-            stroke-width: 3;
-            stroke-linecap: round;
-        }
+    .next-up {
+      margin-top: 1vh;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+      color: var(--text-secondary);
+      opacity: 0.6;
+      letter-spacing: 0.03em;
+    }
 
-        .ring-bg {
-            stroke: rgba(255, 255, 255, 0.1);
-        }
+    .next-up span {
+      color: var(--text-primary);
+      opacity: 0.8;
+    }
 
-        .ring-progress {
-            stroke: var(--ice-blue);
-            stroke-dasharray: 565;
-            stroke-dashoffset: 565;
-            transition: stroke-dashoffset 1s ease-out, stroke 0.5s;
-            filter: drop-shadow(0 0 8px currentColor);
-        }
+    footer {
+      flex-shrink: 0;
+      padding-top: 2vh;
+      border-top: 1px solid var(--divider);
+      min-height: 2.5vh;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
 
-        .status-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
+    .room-toggle {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.6rem, 0.85vw, 0.75rem);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-secondary);
+      background: var(--bg-card, rgba(255, 255, 255, 0.04));
+      border: 1px solid var(--divider);
+      border-radius: 100px;
+      padding: 0.5em 1.4em;
+      cursor: pointer;
+      transition: color 0.25s, border-color 0.25s, background 0.25s;
+      opacity: 0.6;
+    }
 
-        .status-icon {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-        }
+    .room-toggle:hover {
+      color: var(--accent);
+      border-color: var(--accent-glow);
+      background: var(--accent-glow);
+      opacity: 1;
+    }
 
-        .status-text {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.3rem;
-            font-weight: 400;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        /* Status states */
-        .status-available .ring-progress {
-            stroke: #4ade80;
-            stroke-dashoffset: 0;
-        }
-        .status-available .status-text {
-            color: #4ade80;
-        }
-
-        .status-occupied .ring-progress {
-            stroke: #f87171;
-        }
-        .status-occupied .status-text {
-            color: #f87171;
-        }
-
-        .status-upcoming .ring-progress {
-            stroke: var(--warm-amber);
-            stroke-dashoffset: 282;
-        }
-        .status-upcoming .status-text {
-            color: var(--warm-amber);
-        }
-
-        /* Meeting card */
-        .meeting-card {
-            width: 100%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 20px 25px;
-            backdrop-filter: blur(20px);
-            transform: translateY(30px);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .meeting-card.visible {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .meeting-time {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.6rem;
-            font-weight: 300;
-            color: var(--frost-white);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .meeting-time::before {
-            content: '❄';
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-
-        .meeting-title {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--ice-blue);
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-        }
-
-        .meeting-attendees {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .attendee-chip {
-            background: rgba(168, 213, 229, 0.15);
-            border: 1px solid rgba(168, 213, 229, 0.3);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 400;
-            color: var(--frost-white);
-        }
-
-        .meeting-countdown {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--ice-blue);
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .countdown-value {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--frost-white);
-        }
-
-        /* Touch ripple effect */
-        .touch-ripple {
-            position: fixed;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(168, 213, 229, 0.4) 0%, transparent 70%);
-            pointer-events: none;
-            transform: scale(0);
-            animation: ripple 0.8s ease-out forwards;
-            z-index: 100;
-        }
-
-        @keyframes ripple {
-            to {
-                transform: scale(3);
-                opacity: 0;
-            }
-        }
-
-        /* Ice crystal particles */
-        .ice-crystal {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background: var(--frost-white);
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            pointer-events: none;
-            z-index: 101;
-            animation: crystal-float 1.5s ease-out forwards;
-        }
-
-        @keyframes crystal-float {
-            0% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(0) rotate(180deg) translateY(-80px);
-                opacity: 0;
-            }
-        }
-
-        /* Frost breath effect on status ring tap */
-        .frost-breath {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-            animation: frost-expand 0.6s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes frost-expand {
-            0% {
-                transform: scale(0.8);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-        }
-
-        /* Aurora effect (secret mode) */
-        .aurora-mode .frost-overlay {
-            background: linear-gradient(
-                135deg,
-                rgba(46, 16, 101, 0.7) 0%,
-                rgba(15, 118, 110, 0.6) 25%,
-                rgba(30, 64, 175, 0.6) 50%,
-                rgba(124, 58, 237, 0.6) 75%,
-                rgba(46, 16, 101, 0.7) 100%
-            );
-            animation: aurora-shift 8s ease-in-out infinite;
-        }
-
-        @keyframes aurora-shift {
-            0%, 100% {
-                filter: hue-rotate(0deg);
-            }
-            50% {
-                filter: hue-rotate(30deg);
-            }
-        }
-
-        .aurora-mode .snowflake {
-            animation-duration: 4s !important;
-            text-shadow: 0 0 10px rgba(167, 139, 250, 0.8);
-        }
-
-        /* Pulse animation for available status */
-        @keyframes gentle-pulse {
-            0%, 100% {
-                box-shadow: 
-                    0 0 40px rgba(74, 222, 128, 0.15),
-                    inset 0 0 30px rgba(255, 255, 255, 0.05);
-            }
-            50% {
-                box-shadow: 
-                    0 0 60px rgba(74, 222, 128, 0.25),
-                    inset 0 0 30px rgba(255, 255, 255, 0.08);
-            }
-        }
-
-        .status-available .status-ring {
-            animation: gentle-pulse 3s ease-in-out infinite;
-        }
-    </style>
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(1.5); }
+    }
+  </style>
 </head>
 <body>
-    <!-- Background slideshow -->
-    <div class="bg-slideshow">
-        <div class="bg-image active"></div>
-        <div class="bg-image"></div>
-    </div>
+  <div class="container">
+    <header>
+      <div class="logo-area">
+        <img src="/logo.png" alt="Company Logo" onerror="this.style.display='none'">
+        <span class="room-name" id="room-name"></span>
+      </div>
+      <div class="header-right">
+        <div class="clock" id="clock"></div>
+        <div class="date-display" id="date-display"></div>
+      </div>
+    </header>
 
-    <!-- Frosted overlay -->
-    <div class="frost-overlay"></div>
+    <main id="main-content">
+      <div class="idle-state">
+        <p class="idle-tagline">No upcoming meetings</p>
+      </div>
+    </main>
 
-    <!-- Snowfall -->
-    <div class="snowfall" id="snowfall"></div>
+    <footer>
+      <button class="room-toggle" id="room-toggle"></button>
+    </footer>
+  </div>
 
-    <!-- Main container -->
-    <div class="container">
-        <!-- Header with logo and time -->
-        <div class="header">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAhFBMVEX///82QkuapjoaGhfy8+aVoirY3Lve4OJKVFwzP0gsOkTHyswiMj18goeEhIMYGBUJCQABAAATExD19fR9fn1AQD3T1tf4+fKXozEbLTmfpKjP0M+anqKeqkGhrEjd4cKlsFPo6tatsbUFIS8mNUGQkI+YmJc4OTaPj4+BgoEcLTrX27ZHMxB3AAAC8UlEQVR4nO3dTXeaUBCA4aC1FLFBrAUtTdK0Sfr1//9fL41yrgvP4VLmDkPfd0c2mWehxw0zNzdERERERP9htfYA0tV3b7VHkK2+P6wetIeQzAEXizkT6y8OuFgcZks8AedL7ICO+Kg9jEhvFl2reX6hIrQfQvshtB9C+yG0H0L7IbQfQvshtB9C+yG0H0KLVan/dF34NepUI5Z+6ynMPkeda7TS47qn8N3xU9TJRio9Zr2FmUViusmS/sLEHrF6ypIQoTlitXZDBwmTjSniKzBMaIpYZX9HDhQaIp6BoUIzxCo5DRwsTJ5MENMOGC5MNhZ+wOWbZLhw/T7qrMNCiHD6IUQ4/RAinGLVxdOYwkZo4sCq8uJxTOH+h9DMQVWlnPC2fBaaOqCq3G0v/jCuUJ/YlEUhKVxqE5tyt5QVLssXodl71QKlharEZuuA4kJFYrNrgfLCQot4AsoLtYhN8QqMINQhdsAYQhXi/vzPowiXu+8fhCBX22/jCj8iHD2ECP0QIpQJIUI/hAhlQojQDyFCmRAi9EOIUCaECP0QIpQJIUI/hAhlQojQDyFCmRAi9EOIUCaECP0QIpQJIUI/hAhlQojQDyFCmRAi9EOIUCaECP0mKpz9O6T5Lu57wArLIzpilHe5Vda45NHex1db/5Fv4+xUUNxvkkfai6G4aSiPsttEdZVSXhbi+2mUd0XJ7xhSX4bVCO+JUge2RMldX7dCUwfVCO5r+yk0c2CXm/HGFOZCE/9bc9ybeBlChNMPIcLphxDh9EuzbLjQxpWSpiOG3ygxcp6sGXxnxgjQEdfDbgWZAXbEwHtPhoBnYtjNLlPAAXfXrAEdMfB2njmgI/4KuX9oEOiIATcsTQIdse8d0sQosP8tWRM/1Xp0XTiXENoPof0Q2g+h/RDaD6H9ENoPof0Q2g+h/RDaD6H96vtDJ3zUHkamjrh60B5FqvruMG+g+yi2xJl+CE854ryB7Rfqb+0RpKu1ByAiIiIiIhrSH3c9mTpQnFUOAAAAAElFTkSuQmCC" alt="Logo" class="logo">
-            <div class="header-text">
-                <div class="time" id="clock">--:--</div>
-                <div class="date" id="date">Loading...</div>
-            </div>
-        </div>
+  <script>
+    // ── Determine which room this display is for ──
+    // Usage: ?room=large (Studio Room) or ?room=small (Winner's Circle)
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = (params.get('room') || 'large').toLowerCase();
+    const isStudio = roomParam === 'large' || roomParam === 'studio';
+    const roomFilter = isStudio ? 'Large' : 'Small';
+    const roomDisplayName = isStudio ? 'Studio Room' : "Winner\u2019s Circle";
 
-        <!-- Room selector -->
-        <div class="room-selector">
-            <button class="room-tab active" data-room="Large" onclick="selectRoom('Large')">
-                <span>Studio Room</span>
-            </button>
-            <button class="room-tab" data-room="Small" onclick="selectRoom('Small')">
-                <span>Winner's Circle</span>
-            </button>
-        </div>
+    document.body.classList.add(isStudio ? 'studio' : 'winners');
+    document.getElementById('room-name').textContent = roomDisplayName;
+    document.title = roomDisplayName;
 
-        <!-- Status display -->
-        <div class="status-display" id="statusDisplay" onclick="handleStatusTap(event)">
-            <div class="status-ring">
-                <svg viewBox="0 0 200 200">
-                    <circle class="ring-bg" cx="100" cy="100" r="90"></circle>
-                    <circle class="ring-progress" cx="100" cy="100" r="90"></circle>
-                </svg>
-            </div>
-            <div class="status-content">
-                <div class="status-icon" id="statusIcon">❄</div>
-                <div class="status-text" id="statusText">Loading</div>
-            </div>
-        </div>
+    // ── Room toggle button ──
+    const toggleBtn = document.getElementById('room-toggle');
+    const otherRoom = isStudio ? 'small' : 'large';
+    const otherRoomName = isStudio ? "Winner\u2019s Circle" : 'Studio Room';
+    toggleBtn.textContent = 'View ' + otherRoomName;
+    toggleBtn.addEventListener('click', function() {
+      const url = new URL(window.location);
+      url.searchParams.set('room', otherRoom);
+      window.location.href = url.toString();
+    });
 
-        <!-- Meeting card -->
-        <div class="meeting-card" id="meetingCard">
-            <div class="meeting-time" id="meetingTime">--:-- – --:--</div>
-            <div class="meeting-title" id="meetingTitle"></div>
-            <div class="meeting-attendees" id="meetingAttendees"></div>
-            <div class="meeting-countdown">
-                <span id="countdownLabel">Starts in</span>
-                <span class="countdown-value" id="countdownValue">--</span>
-                <span>minutes</span>
-            </div>
-        </div>
-    </div>
+    // ── Clock & Date ──
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+      document.getElementById('date-display').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
 
-    <script>
-        // State
-        let currentRoom = 'Large';
-        let appointments = [];
-        let tapCount = 0;
-        let tapTimer = null;
-        let bgIndex = 0;
+    // ── Helpers ──
+    function formatNames(names) {
+      if (!names || names.length === 0) return 'Guest';
+      if (names.length === 1) return names[0];
+      if (names.length === 2) return names[0] + ' & ' + names[1];
+      if (names.length <= 4) return names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1];
+      return names.slice(0, 3).join(', ') + ' & others';
+    }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            createSnowfall();
-            updateClock();
-            setInterval(updateClock, 1000);
-            fetchAppointments();
-            setInterval(fetchAppointments, 30000);
-            startBackgroundSlideshow();
-            
-            // Global touch ripple
-            document.addEventListener('touchstart', createTouchRipple);
-            document.addEventListener('click', createTouchRipple);
-        });
+    function statusText(appt) {
+      if (appt.status === 'in-progress') return 'In Progress';
+      if (appt.minutesUntilStart <= 1) return 'Starting Now';
+      return 'In ' + appt.minutesUntilStart + ' min';
+    }
 
-        // Create snowfall
-        function createSnowfall() {
-            const container = document.getElementById('snowfall');
-            const snowflakes = ['❄', '❅', '❆', '✦', '✧', '·'];
-            
-            for (let i = 0; i < 50; i++) {
-                const flake = document.createElement('div');
-                flake.className = 'snowflake';
-                flake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
-                flake.style.left = Math.random() * 100 + '%';
-                flake.style.animationDuration = (Math.random() * 8 + 6) + 's';
-                flake.style.animationDelay = Math.random() * 10 + 's';
-                flake.style.fontSize = (Math.random() * 0.8 + 0.4) + 'rem';
-                flake.style.opacity = Math.random() * 0.6 + 0.2;
-                container.appendChild(flake);
-            }
+    // ── Render ──
+    function renderMeetings(appointments) {
+      const main = document.getElementById('main-content');
+      const roomAppts = appointments.filter(a => a.room === roomFilter);
+
+      if (roomAppts.length === 0) {
+        main.innerHTML =
+          '<div class="idle-state" style="animation: fadeIn 0.6s ease both;">' +
+            '<p class="idle-tagline">No upcoming meetings</p>' +
+          '</div>';
+        return;
+      }
+
+      // In-progress first, then soonest
+      roomAppts.sort((a, b) => {
+        if (a.status === 'in-progress' && b.status !== 'in-progress') return -1;
+        if (b.status === 'in-progress' && a.status !== 'in-progress') return 1;
+        return a.minutesUntilStart - b.minutesUntilStart;
+      });
+
+      const primary = roomAppts[0];
+      const isLive = primary.status === 'in-progress';
+      const names = formatNames(primary.names);
+
+      let nextUpHTML = '';
+      if (roomAppts.length > 1) {
+        const next = roomAppts[1];
+        nextUpHTML =
+          '<div class="next-up">Up next at ' + next.formattedStartTime +
+          ' &middot; <span>' + formatNames(next.names) + '</span></div>';
+      }
+
+      main.innerHTML =
+        '<div class="meeting-display">' +
+          '<span class="welcome-label">Welcome</span>' +
+          '<hr class="accent-rule">' +
+          '<div class="client-names">' + names + '</div>' +
+          '<div class="meeting-meta">' +
+            '<div class="meeting-time">' +
+              '<span class="time-dot ' + (isLive ? 'live' : '') + '"></span>' +
+              primary.formattedStartTime + ' \u2013 ' + primary.formattedEndTime +
+            '</div>' +
+            '<span class="meta-divider"></span>' +
+            '<span class="status-badge">' + statusText(primary) + '</span>' +
+          '</div>' +
+          nextUpHTML +
+        '</div>';
+    }
+
+    // ── Polling ──
+    let lastJson = '';
+
+    async function fetchAppointments() {
+      try {
+        const res = await fetch('/api/appointments');
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        const json = JSON.stringify(data);
+        if (json !== lastJson) {
+          lastJson = json;
+          renderMeetings(data);
         }
+      } catch (err) {
+        console.error('Error fetching appointments:', err);
+      }
+    }
 
-        // Background slideshow
-        function startBackgroundSlideshow() {
-            const images = document.querySelectorAll('.bg-image');
-            setInterval(() => {
-                images[bgIndex].classList.remove('active');
-                bgIndex = (bgIndex + 1) % images.length;
-                images[bgIndex].classList.add('active');
-            }, 15000);
-        }
-
-        // Update clock
-        function updateClock() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            });
-            const dateStr = now.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                month: 'long', 
-                day: 'numeric' 
-            });
-            
-            document.getElementById('clock').textContent = timeStr;
-            document.getElementById('date').textContent = dateStr.toUpperCase();
-        }
-
-        // Fetch appointments
-        async function fetchAppointments() {
-            try {
-                const response = await fetch('/api/appointments');
-                appointments = await response.json();
-                updateDisplay();
-            } catch (error) {
-                console.error('Error fetching appointments:', error);
-            }
-        }
-
-        // Update display
-        function updateDisplay() {
-            const roomAppointments = appointments.filter(a => a.room === currentRoom);
-            const statusDisplay = document.getElementById('statusDisplay');
-            const meetingCard = document.getElementById('meetingCard');
-            const statusIcon = document.getElementById('statusIcon');
-            const statusText = document.getElementById('statusText');
-            const ringProgress = document.querySelector('.ring-progress');
-            
-            // Remove all status classes
-            statusDisplay.classList.remove('status-available', 'status-occupied', 'status-upcoming');
-            
-            if (roomAppointments.length === 0) {
-                // Available
-                statusDisplay.classList.add('status-available');
-                statusIcon.textContent = '✓';
-                statusText.textContent = 'Available';
-                ringProgress.style.strokeDashoffset = '0';
-                meetingCard.classList.remove('visible');
-            } else {
-                const meeting = roomAppointments[0];
-                
-                if (meeting.status === 'in-progress') {
-                    // Occupied
-                    statusDisplay.classList.add('status-occupied');
-                    statusIcon.textContent = '●';
-                    statusText.textContent = 'In Session';
-                    
-                    // Calculate progress
-                    const start = new Date(meeting.start);
-                    const end = new Date(meeting.end);
-                    const now = new Date();
-                    const total = end - start;
-                    const elapsed = now - start;
-                    const progress = Math.min(elapsed / total, 1);
-                    const offset = 565 * (1 - progress);
-                    ringProgress.style.strokeDashoffset = offset;
-                    
-                    // Update countdown
-                    const remaining = Math.round((end - now) / 60000);
-                    document.getElementById('countdownLabel').textContent = 'Ends in';
-                    document.getElementById('countdownValue').textContent = remaining;
-                } else {
-                    // Upcoming
-                    statusDisplay.classList.add('status-upcoming');
-                    statusIcon.textContent = '◐';
-                    statusText.textContent = 'Reserved';
-                    ringProgress.style.strokeDashoffset = '282';
-                    
-                    document.getElementById('countdownLabel').textContent = 'Starts in';
-                    document.getElementById('countdownValue').textContent = meeting.minutesUntilStart;
-                }
-                
-                // Show meeting card
-                document.getElementById('meetingTime').textContent = 
-                    `${meeting.formattedStartTime} – ${meeting.formattedEndTime}`;
-                document.getElementById('meetingTitle').textContent = meeting.title || '';
-                
-                const attendeesContainer = document.getElementById('meetingAttendees');
-                attendeesContainer.innerHTML = '';
-                if (meeting.names && meeting.names.length > 0) {
-                    meeting.names.forEach(name => {
-                        const chip = document.createElement('span');
-                        chip.className = 'attendee-chip';
-                        chip.textContent = name;
-                        attendeesContainer.appendChild(chip);
-                    });
-                }
-                
-                meetingCard.classList.add('visible');
-            }
-        }
-
-        // Room selection
-        function selectRoom(room) {
-            currentRoom = room;
-            
-            // Update tabs
-            document.querySelectorAll('.room-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.room === room);
-            });
-            
-            // Create ice crystal burst
-            const activeTab = document.querySelector('.room-tab.active');
-            const rect = activeTab.getBoundingClientRect();
-            createIceCrystals(rect.left + rect.width / 2, rect.top + rect.height / 2);
-            
-            updateDisplay();
-        }
-
-        // Touch ripple effect
-        function createTouchRipple(e) {
-            const ripple = document.createElement('div');
-            ripple.className = 'touch-ripple';
-            
-            const x = e.clientX || (e.touches && e.touches[0].clientX);
-            const y = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            ripple.style.left = x - 50 + 'px';
-            ripple.style.top = y - 50 + 'px';
-            ripple.style.width = '100px';
-            ripple.style.height = '100px';
-            
-            document.body.appendChild(ripple);
-            
-            setTimeout(() => ripple.remove(), 800);
-        }
-
-        // Ice crystal particles
-        function createIceCrystals(x, y) {
-            for (let i = 0; i < 8; i++) {
-                const crystal = document.createElement('div');
-                crystal.className = 'ice-crystal';
-                
-                const angle = (i / 8) * Math.PI * 2;
-                const distance = 40 + Math.random() * 30;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance;
-                
-                crystal.style.left = x + 'px';
-                crystal.style.top = y + 'px';
-                crystal.style.setProperty('--tx', tx + 'px');
-                crystal.style.setProperty('--ty', ty + 'px');
-                crystal.style.animation = `crystal-float 1s ease-out forwards`;
-                crystal.style.transform = `translate(${tx}px, ${ty}px)`;
-                
-                document.body.appendChild(crystal);
-                setTimeout(() => crystal.remove(), 1000);
-            }
-        }
-
-        // Status ring tap handler
-        function handleStatusTap(e) {
-            e.stopPropagation();
-            
-            // Frost breath effect
-            const display = document.getElementById('statusDisplay');
-            const breath = document.createElement('div');
-            breath.className = 'frost-breath';
-            display.querySelector('.status-ring').appendChild(breath);
-            setTimeout(() => breath.remove(), 600);
-            
-            // Secret aurora mode
-            tapCount++;
-            clearTimeout(tapTimer);
-            tapTimer = setTimeout(() => tapCount = 0, 2000);
-            
-            if (tapCount >= 5) {
-                document.body.classList.toggle('aurora-mode');
-                tapCount = 0;
-                
-                // Burst of crystals
-                const rect = display.getBoundingClientRect();
-                for (let i = 0; i < 20; i++) {
-                    setTimeout(() => {
-                        createIceCrystals(
-                            rect.left + rect.width / 2 + (Math.random() - 0.5) * 50,
-                            rect.top + rect.height / 2 + (Math.random() - 0.5) * 50
-                        );
-                    }, i * 50);
-                }
-            }
-        }
-    </script>
+    fetchAppointments();
+    setInterval(fetchAppointments, 30000);
+  </script>
 </body>
 </html>
