@@ -6,37 +6,34 @@
 
 1. **Install Dependencies**
    ```bash
-   npm install
+   npm install --omit=dev
    ```
 
-2. **Configure API Tokens**
-   
-   The Daylite API uses personal tokens that expire every hour. This app handles token refresh automatically.
-   
-   Create a `.env` file based on `.env.example`:
+2. **Enter your Daylite tokens**
    ```bash
-   cp .env.example .env
+   npm run setup
    ```
-   
-   Then edit `.env` and add your tokens:
-   ```env
-   # Initial access token (expires in 1 hour)
-   DAYLITE_ACCESS_TOKEN=your_access_token_here
-   
-   # Refresh token (used to get new access tokens)
-   DAYLITE_REFRESH_TOKEN=your_refresh_token_here
-   ```
-   
-   **Getting Your Tokens:**
-   1. Log into your Daylite API dashboard (https://developer.daylite.app/reference/personal-token)
-   2. Create a personal token
-   3. Copy both the access token and refresh token
-   4. The app will automatically refresh the access token before it expires
+   Create a personal token in the Daylite API dashboard
+   (https://developer.daylite.app/reference/personal-token) and paste the access and refresh
+   tokens when asked. Setup checks them with Daylite right away and saves them to `tokens.json`.
+   Run it again any time you need new tokens.
 
 3. **Start the Server**
-   ```bash
-   npm start
-   ```
+
+   At the end of setup, answer **Y** to run the server in the background. It then starts
+   automatically when this Mac logs in and restarts if it crashes. To run it in the
+   foreground instead, use `npm start`.
+
+   | Command | What it does |
+   | --- | --- |
+   | `npm run status` | Show whether the background server is running |
+   | `npm run restart` | Restart the background server |
+   | `npm run logs` | Follow the server log |
+   | `npm run install-service` | Install the background server without rerunning setup |
+   | `npm run uninstall-service` | Stop and remove the background server |
+
+   The Mac needs to log in automatically after a restart for the background server to start.
+   If you update Node, run `npm run install-service` again.
 
 4. **Access the Display**
    Open your browser to `http://localhost:8080`
@@ -54,7 +51,7 @@ The app includes automatic token management for Daylite's personal tokens:
 
 The app uses Daylite's personal token refresh endpoint:
 ```
-POST https://api.marketcircle.net/v1/personal_token/refresh_token?refresh_token={refresh_token}
+GET https://api.marketcircle.net/v1/personal_token/refresh_token?refresh_token={refresh_token}
 ```
 
 ### Testing Token Refresh

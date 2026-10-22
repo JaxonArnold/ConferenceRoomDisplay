@@ -7,7 +7,12 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test-token": "node test-token-refresh.js",
-    "setup": "node setup.js"
+    "setup": "node setup.js",
+    "install-service": "node service.js install",
+    "uninstall-service": "node service.js uninstall",
+    "restart": "node service.js restart",
+    "status": "node service.js status",
+    "logs": "tail -n 50 -f logs/server.log"
   },
   "dependencies": {
     "dotenv": "^16.3.1",

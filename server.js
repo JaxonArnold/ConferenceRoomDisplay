@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs').promises;
 
 // Try to load environment variables from .env file
 try {
@@ -13,146 +12,11 @@ const app = express();
 app.disable('x-powered-by');
 const PORT = process.env.PORT || 8080;
 
-const DAYLITE_API = process.env.DAYLITE_API_BASE || 'https://api.marketcircle.net';
+const { TokenManager, DAYLITE_API, REQUEST_TIMEOUT_MS } = require('./tokenManager');
+
 const LARGE_ROOM_RESOURCE = '/v1/resources/2015';
-const REQUEST_TIMEOUT_MS = 15 * 1000;
 // Every display polls every 30 seconds; share one Daylite lookup between them
 const CACHE_MS = 20 * 1000;
-
-// Token management
-class TokenManager {
-  constructor() {
-    this.tokenFile = path.join(__dirname, 'tokens.json');
-    this.accessToken = null;
-    this.refreshToken = process.env.DAYLITE_REFRESH_TOKEN || null;
-    this.tokenExpiry = null;
-    this.refreshPromise = null;
-  }
-
-  async initialize() {
-    // Try to load existing tokens from file
-    let tokens = null;
-    try {
-      tokens = JSON.parse(await fs.readFile(this.tokenFile, 'utf8'));
-    } catch (error) {
-      console.log(error.code === 'ENOENT'
-        ? 'No existing token file found'
-        : `Could not read token file: ${error.message}`);
-    }
-
-    if (tokens) {
-      this.accessToken = tokens.accessToken;
-      this.refreshToken = tokens.refreshToken || this.refreshToken;
-      this.tokenExpiry = tokens.tokenExpiry ? new Date(tokens.tokenExpiry) : null;
-      console.log('Loaded existing tokens from file');
-    } else if (process.env.DAYLITE_ACCESS_TOKEN) {
-      // If we have initial access token from env, use it
-      this.accessToken = process.env.DAYLITE_ACCESS_TOKEN;
-      // Assume it expires in 1 hour from now if not specified
-      this.tokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
-      await this.saveTokens();
-    }
-
-    if (!this.accessToken && !this.refreshToken) {
-      throw new Error('No tokens available. Please provide DAYLITE_ACCESS_TOKEN or DAYLITE_REFRESH_TOKEN in environment variables');
-    }
-
-    // A failed refresh here (e.g. network not up yet after a reboot) shouldn't
-    // stop the server; it will be retried on the next appointments request.
-    if (this.needsRefresh()) {
-      try {
-        await this.refreshAccessToken();
-      } catch (error) {
-        console.error('Initial token refresh failed, will retry on next request');
-      }
-    }
-  }
-
-  needsRefresh() {
-    if (!this.tokenExpiry) return true;
-    // Refresh if token expires in less than 5 minutes
-    const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
-    return this.tokenExpiry <= fiveMinutesFromNow;
-  }
-
-  // Concurrent callers share one in-flight refresh, so a refresh token is never
-  // used twice (Daylite may invalidate it once it has been exchanged).
-  refreshAccessToken() {
-    if (!this.refreshPromise) {
-      this.refreshPromise = this.doRefresh().finally(() => {
-        this.refreshPromise = null;
-      });
-    }
-    return this.refreshPromise;
-  }
-
-  async doRefresh() {
-    if (!this.refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    console.log('Refreshing access token...');
-
-    try {
-      // Daylite personal token refresh endpoint (token provided in querystring)
-      const tokenUrl = `${DAYLITE_API}/v1/personal_token/refresh_token?refresh_token=${encodeURIComponent(this.refreshToken)}`;
-
-      const response = await fetch(tokenUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        },
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to refresh token: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
-      const accessToken = data.access_token || data.token;
-      if (!accessToken) {
-        throw new Error('Token refresh response did not include an access token');
-      }
-
-      this.accessToken = accessToken;
-      this.refreshToken = data.refresh_token || this.refreshToken; // Update refresh token if provided
-
-      // Calculate expiry time (typically 1 hour for Daylite)
-      const expiresIn = data.expires_in || 3600; // Default to 1 hour
-      this.tokenExpiry = new Date(Date.now() + expiresIn * 1000);
-
-      await this.saveTokens();
-      console.log('Access token refreshed successfully. Expires at:', this.tokenExpiry);
-
-    } catch (error) {
-      console.error('Error refreshing token:', error.message);
-      throw error;
-    }
-  }
-
-  async saveTokens() {
-    const tokens = {
-      accessToken: this.accessToken,
-      refreshToken: this.refreshToken,
-      tokenExpiry: this.tokenExpiry ? this.tokenExpiry.toISOString() : null
-    };
-
-    // Write to a temp file and rename so a crash mid-write can't corrupt the
-    // only copy of the refresh token. Readable by the owner only.
-    const tmpFile = `${this.tokenFile}.tmp`;
-    await fs.writeFile(tmpFile, JSON.stringify(tokens, null, 2), { mode: 0o600 });
-    await fs.rename(tmpFile, this.tokenFile);
-  }
-
-  async getValidToken() {
-    if (this.needsRefresh()) {
-      await this.refreshAccessToken();
-    }
-    return `Bearer ${this.accessToken}`;
-  }
-}
 
 // Initialize token manager
 const tokenManager = new TokenManager();
@@ -349,12 +213,20 @@ async function startServer() {
   try {
     await tokenManager.initialize();
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log('Token will auto-refresh before expiry');
     });
+    server.on('error', error => {
+      if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. The server may already be running in the background (check with "npm run status").`);
+      } else {
+        console.error('Server error:', error);
+      }
+      process.exit(1);
+    });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('Failed to start server:', error.message);
     process.exit(1);
   }
 }

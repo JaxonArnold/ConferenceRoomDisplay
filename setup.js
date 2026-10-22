@@ -2,12 +2,18 @@
 
 /**
  * Setup script for Daylite Conference Room Display
- * Helps obtain and configure API tokens
+ * Saves new API tokens, checks them with Daylite, and starts the server
  */
 
 const readline = require('readline');
 const fs = require('fs').promises;
 const path = require('path');
+
+const ENV_FILE = path.join(__dirname, '.env');
+require('dotenv').config({ path: ENV_FILE });
+
+const { TokenManager } = require('./tokenManager');
+const service = require('./service');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -15,6 +21,9 @@ const rl = readline.createInterface({
 });
 
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
+
+// Pasted tokens often pick up stray spaces or quotes
+const cleanInput = (value) => value.trim().replace(/^["']|["']$/g, '').trim();
 
 async function setup() {
   console.log('🚀 Daylite Conference Room Display Setup Wizard 🚀');
@@ -25,12 +34,17 @@ async function setup() {
 
 
   console.log('\n🔐 Enter your tokens:\n');
-  
-  const accessToken = await question('Access Token: ');
-  const refreshToken = await question('Refresh Token: ');
-  
+
+  const accessToken = cleanInput(await question('Access Token: '));
+  let refreshToken = '';
+  while (!refreshToken) {
+    refreshToken = cleanInput(await question('Refresh Token: '));
+    if (!refreshToken) console.log('The refresh token is required so the display keeps working after the first hour.');
+  }
+
   console.log('\n🌐 Server configuration:\n');
-  const port = await question('Port number (default: 8080): ') || '8080';
+  const currentPort = process.env.PORT || '8080';
+  const port = cleanInput(await question(`Port number (default: ${currentPort}): `)) || currentPort;
 
   // Create .env file
   let envContent = `# Daylite API Configuration
@@ -46,47 +60,57 @@ DAYLITE_REFRESH_TOKEN=${refreshToken}
 PORT=${port}
 `;
 
+  // The tokens are secrets: keep the file readable by the owner only
+  await fs.writeFile(ENV_FILE, envContent, { mode: 0o600 });
+  await fs.chmod(ENV_FILE, 0o600);
+  console.log('\n✅ Configuration saved to .env file');
+
+  // The server reads tokens.json first, so replace it with the new tokens.
+  // Exchanging the refresh token now also proves it works.
+  console.log('\n🔍 Checking your refresh token with Daylite...');
+  const tokenManager = new TokenManager();
   try {
-    // The tokens are secrets: keep the file readable by the owner only
-    const envFile = path.join(__dirname, '.env');
-    await fs.writeFile(envFile, envContent, { mode: 0o600 });
-    await fs.chmod(envFile, 0o600);
-    console.log('\n✅ Configuration saved to .env file');
-    
-    // Test the connection
-    console.log('\n🔍 Testing connection to Daylite API...');
-    
-    const testUrl = 'https://api.marketcircle.net/v1/appointments?limit=1';
-    const response = await fetch(testUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json'
-      }
-    });
-    
-    if (response.ok) {
-      console.log('✅ Successfully connected to Daylite API!');
-    } else if (response.status === 401) {
-      console.log('⚠️  Access token may be expired. The app will automatically refresh it on startup.');
-    } else {
-      console.log(`⚠️  Received status ${response.status}. Please check your tokens.`);
-    }
-    
+    await tokenManager.exchangeRefreshToken(refreshToken);
+    console.log('✅ Daylite accepted your tokens.');
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    if (error.rejected) {
+      console.error('\n❌ Daylite rejected that refresh token.');
+      console.error('   Make sure you copied the refresh token (not the access token) in full,');
+      console.error('   then run "npm run setup" again.\n');
+      rl.close();
+      process.exit(1);
+    }
+
+    // Couldn't reach Daylite: save what was entered so the server can try later
+    console.warn(`\n⚠️  Could not reach Daylite (${error.message}).`);
+    console.warn('   Saving your tokens anyway; the server will try again when it starts.');
+    tokenManager.accessToken = accessToken || null;
+    tokenManager.refreshToken = refreshToken;
+    tokenManager.tokenExpiry = accessToken ? new Date(Date.now() + 60 * 60 * 1000) : null;
+    await tokenManager.saveTokens();
   }
 
-  console.log('\n📱 Setup complete! You can now run:');
-  console.log('   npm start        - Start the server');
-  console.log('   npm run dev      - Start in development mode\n');
-  console.log('Then open http://localhost:' + port + ' in your browser\n');
+  if (service.isInstalled()) {
+    service.restart();
+    console.log(`\n📱 Setup complete! The display server is running at http://localhost:${port}\n`);
+  } else {
+    const answer = cleanInput(await question('\nRun the server in the background and start it automatically when this Mac logs in? (Y/n): '));
+    if (!/^n/i.test(answer)) {
+      service.install();
+      console.log(`\n📱 Setup complete! The display server is running at http://localhost:${port}\n`);
+    } else {
+      console.log('\n📱 Setup complete! Start the server with:');
+      console.log('   npm start\n');
+      console.log('Then open http://localhost:' + port + ' in your browser\n');
+    }
+  }
 
   rl.close();
 }
 
 // Run setup
 setup().catch(error => {
-  console.error('Setup failed:', error);
+  console.error('Setup failed:', error.message);
   rl.close();
   process.exit(1);
 });
