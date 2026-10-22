@@ -47,7 +47,10 @@ PORT=${port}
 `;
 
   try {
-    await fs.writeFile('.env', envContent);
+    // The tokens are secrets: keep the file readable by the owner only
+    const envFile = path.join(__dirname, '.env');
+    await fs.writeFile(envFile, envContent, { mode: 0o600 });
+    await fs.chmod(envFile, 0o600);
     console.log('\n✅ Configuration saved to .env file');
     
     // Test the connection

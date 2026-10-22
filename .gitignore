@@ -129,3 +129,6 @@ dist
 
 
 tokens.json
+# macOS Finder metadata
+.DS_Store
+tokens.json.tmp

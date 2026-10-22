@@ -363,7 +363,15 @@
     setInterval(updateClock, 10000);
 
     // ── Helpers ──
+    // Contact names come from Daylite; escape them before building HTML
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[ch]);
+    }
+
     function formatNames(names) {
+      names = (names || []).map(escapeHtml);
       if (!names || names.length === 0) return 'Guest';
       if (names.length === 1) return names[0];
       if (names.length === 2) return names[0] + ' & ' + names[1];
@@ -405,7 +413,7 @@
       if (roomAppts.length > 1) {
         const next = roomAppts[1];
         nextUpHTML =
-          '<div class="next-up">Up next at ' + next.formattedStartTime +
+          '<div class="next-up">Up next at ' + escapeHtml(next.formattedStartTime) +
           ' &middot; <span>' + formatNames(next.names) + '</span></div>';
       }
 
@@ -417,7 +425,7 @@
           '<div class="meeting-meta">' +
             '<div class="meeting-time">' +
               '<span class="time-dot ' + (isLive ? 'live' : '') + '"></span>' +
-              primary.formattedStartTime + ' \u2013 ' + primary.formattedEndTime +
+              escapeHtml(primary.formattedStartTime) + ' \u2013 ' + escapeHtml(primary.formattedEndTime) +
             '</div>' +
             '<span class="meta-divider"></span>' +
             '<span class="status-badge">' + statusText(primary) + '</span>' +
@@ -428,12 +436,17 @@
 
     // ── Polling ──
     let lastJson = '';
+    let lastSuccess = Date.now();
+    // If the server can't be reached for this long, stop showing a meeting
+    // that may already be over
+    const STALE_AFTER_MS = 3 * 60 * 1000;
 
     async function fetchAppointments() {
       try {
         const res = await fetch('/api/appointments');
         if (!res.ok) throw new Error(res.status);
         const data = await res.json();
+        lastSuccess = Date.now();
         const json = JSON.stringify(data);
         if (json !== lastJson) {
           lastJson = json;
@@ -441,6 +454,10 @@
         }
       } catch (err) {
         console.error('Error fetching appointments:', err);
+        if (Date.now() - lastSuccess > STALE_AFTER_MS && lastJson !== '[]') {
+          lastJson = '[]';
+          renderMeetings([]);
+        }
       }
     }
 
